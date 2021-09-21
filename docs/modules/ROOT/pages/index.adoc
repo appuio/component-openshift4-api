@@ -1,0 +1,5 @@
+= openshift4-api
+
+openshift4-api is a Commodore component to manage openshift4-api.
+
+See the xref:references/parameters.adoc[parameters] reference for further details.
