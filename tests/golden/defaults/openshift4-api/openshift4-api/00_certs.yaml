@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  annotations: {}
+  labels:
+    name: api-server-cluster-certificate-bar
+  name: api-server-cluster-certificate-bar
+  namespace: openshift-config
+spec:
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-production
+  secretName: api-server-cluster-certificate-bar
+  subject:
+    organizations:
+      - projectsyn
