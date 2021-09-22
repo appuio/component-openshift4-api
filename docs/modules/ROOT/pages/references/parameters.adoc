@@ -2,18 +2,185 @@
 
 The parent key for all of the following parameters is `openshift4_api`.
 
-== `namespace`
+== `servingCerts`
 
 [horizontal]
-type:: string
-default:: `syn-openshift4-api`
+type:: object
+default:: `{}`
 
-The namespace in which to deploy this component.
+`servingCerts` is the TLS cert info for serving secure traffic.
+This is a key-value map defining multiple named certificates.
+
+Each entry needs to specify which host name it matches and provide a certificate.
+The certificate can be provided in two ways:
+
+* `secret`: The provided entry is deployed onto the cluster as a Kubernetes Secret with `type=kubernetes.io/tls`.
+The dictionary values are directly directly merged into a `Secret` resource which only has `type=kubernetes.io/tls` set.
+* `cert`: A certificate is generated using `cert-manager`, by deploying the entry as a `Certificate` resource.
+The dictionary values are then directly directly merged into the mostly empty `Certificate` resources.
+
+If no certificate is specified or no name matches the server name, the operator managed certificates will be used for serving secure traffic.
+
+
+
+=== Example
+
+[source,yaml]
+----
+servingCerts:
+  "foo":
+    names:
+      - "foo.vshn.ch"
+    secret:
+      stringData:
+        tls.crt: "THECERTTIFICATE"
+        tls.key: "THEKEY"
+  "bar":
+    names:
+      - "bar.vshn.ch"
+      - "buzz.vshn.ch"
+    secret: null
+    cert:
+      subject:
+        organizations:
+          - projectsyn
+      issuerRef:
+        name: letsencrypt-production
+        kind: ClusterIssuer
+----
+
+
+
+== `additionalCORSAllowedOrigins`
+
+[horizontal]
+type:: array (string)
+default:: `[]`
+
+`additionalCORSAllowedOrigins` lists additional, user-defined regular expressions describing hosts for which the API server allows access using the CORS headers.
+This may be needed to access the API and the integrated OAuth server from JavaScript applications.
+The values are regular expressions that correspond to the Golang regular expression language.
+
+
+
+== `audit`
+
+[horizontal]
+type:: object
+default::
++
+[source,yaml]
+----
+audit:
+  profile: 'Default'
+----
+
+
+`audit` specifies the settings for audit configuration to be applied to all OpenShift-provided API servers in the cluster.
+
+You can specify the name of the desired audit policy configuration to be deployed to all OpenShift-provided API servers in the cluster.
+The following profiles are provided:
+
+* Default: the existing default policy.
+* WriteRequestBodies: like `Default`, but logs request and response HTTP payloads for write requests (create, update, patch).
+* AllRequestBodies: like `WriteRequestBodies`, but also logs request and response HTTP payloads for read requests (get, list).
+
+If unset, the 'Default' profile is used as the default.
+
+== `clientCA`
+
+[horizontal]
+type:: object
+default:: `{}`
+example::
++
+[source,yaml]
+----
+clientCA:
+  name: internal-ca
+----
+
+`clientCA` references a ConfigMap containing a certificate bundle for the signers that will be recognized for incoming client certificates in addition to the operator managed signers.
+If this is empty, then only operator managed signers are valid.
+You usually only have to set this if you have your own PKI you wish to honor client certificates from.
+The ConfigMap must exist in the openshift-config namespace and contain a `ca-bundle.crt` field.
+
+== `encryption`
+
+[horizontal]
+type:: object
+default:: `{}`
+example::
++
+[source,yaml]
+----
+encryption:
+  type: aescbc
+----
+
+`encryption` allows the configuration of encryption of resources at the datastore layer.
+
+`type` defines what encryption type should be used to encrypt resources at the datastore layer.
+When this field is unset, identity is implied.
+The behavior of unset can and will change over time.
+Even if encryption is enabled by default, the meaning of unset may change to a different encryption type based on changes in best practices.
+When encryption is enabled, all sensitive resources shipped with the platform are encrypted.
+This list of sensitive resources can and will change over time.
+
+== `tlsSecurityProfile`
+
+[horizontal]
+type:: object
+default:: `{}`
+example::
++
+[source,yaml]
+----
+tlsSecurityProfile:
+  old: {}
+  type: Old
+----
+
+`tlsSecurityProfile` specifies settings for TLS connections for externally exposed servers.
+If unset, a default (which may change between releases) is chosen.
+
+
+See https://docs.openshift.com/container-platform/4.8/security/tls-security-profiles.html[the security pofile documentation] for more information.
+
 
 
 == Example
 
 [source,yaml]
 ----
-namespace: example-namespace
+additionalCORSAllowedOrigins: []
+audit:
+  profile: 'Default'
+clientCA:
+  name: internal-ca
+encryption:
+  type: aescbc
+tlsSecurityProfile:
+  old: {}
+  type: Old
+servingCerts:
+  "foo":
+    names:
+      - "foo.vshn.ch"
+    secret:
+      stringData:
+        tls.crt: "THECERTTIFICATE"
+        tls.key: "THEKEY"
+  "bar":
+    names:
+      - "bar.vshn.ch"
+      - "buzz.vshn.ch"
+    secret: null
+    cert:
+      subject:
+        organizations:
+          - projectsyn
+      issuerRef:
+        name: letsencrypt-production
+        kind: ClusterIssuer
 ----
