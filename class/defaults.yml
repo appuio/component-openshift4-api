@@ -1,6 +1,7 @@
 parameters:
   openshift4_api:
     =_metadata: {}
+    namespace: syn-openshift4-api
     servingCerts: {}
     apiServerSpec:
       audit:
