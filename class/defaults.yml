@@ -1,10 +1,7 @@
 parameters:
   openshift4_api:
     =_metadata: {}
-    additionalCORSAllowedOrigins: []
-    audit:
-      profile: 'Default'
-    clientCA: {}
-    encryption: {}
-    tlsSecurityProfile: {}
     servingCerts: {}
+    apiServerSpec:
+      audit:
+        profile: 'Default'

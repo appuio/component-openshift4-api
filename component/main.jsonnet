@@ -52,8 +52,7 @@ local apiServer = {
       'release.openshift.io/create-only': 'true',
     },
   },
-  spec: {
-    audit: params.audit,
+  spec: com.makeMergeable(params.apiServerSpec) + {
     servingCerts: [
       {
         names: params.servingCerts[k].names,
