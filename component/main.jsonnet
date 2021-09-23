@@ -53,15 +53,17 @@ local apiServer = {
     },
   },
   spec: com.makeMergeable(params.apiServerSpec) + {
-    servingCerts: [
-      {
-        names: params.servingCerts[k].names,
-        servingCertificate: {
-          name: prefix + k,
-        },
-      }
-      for k in std.objectFields(params.servingCerts)
-    ],
+    servingCerts: {
+      namedCertificates: [
+        {
+          names: params.servingCerts[k].names,
+          servingCertificate: {
+            name: prefix + k,
+          },
+        }
+        for k in std.objectFields(params.servingCerts)
+      ],
+    },
   },
 };
 

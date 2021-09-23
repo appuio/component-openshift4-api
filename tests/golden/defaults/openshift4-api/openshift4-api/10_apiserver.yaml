@@ -11,12 +11,13 @@ spec:
   audit:
     profile: Default
   servingCerts:
-    - names:
-        - bar.vshn.ch
-        - buzz.vshn.ch
-      servingCertificate:
-        name: api-server-cluster-certificate-bar
-    - names:
-        - foo.vshn.ch
-      servingCertificate:
-        name: api-server-cluster-certificate-foo
+    namedCertificates:
+      - names:
+          - bar.vshn.ch
+          - buzz.vshn.ch
+        servingCertificate:
+          name: api-server-cluster-certificate-bar
+      - names:
+          - foo.vshn.ch
+        servingCertificate:
+          name: api-server-cluster-certificate-foo
