@@ -1,3 +1,27 @@
-# Overwrite parameters here
-
-# parameters: {...}
+parameters:
+  kapitan:
+    dependencies:
+      - type: https
+        source: https://raw.githubusercontent.com/projectsyn/component-cert-manager/v2.1.0/lib/cert-manager.libsonnet
+        output_path: vendor/lib/cert-manager.libsonnet
+  openshift4_api:
+    servingCerts:
+      "foo":
+        names:
+          - "foo.vshn.ch"
+        secret:
+          stringData:
+            tls.crt: "THECERTTIFICATE"
+            tls.key: "THEKEY"
+      "bar":
+        names:
+          - "bar.vshn.ch"
+          - "buzz.vshn.ch"
+        secret: null
+        cert:
+          subject:
+            organizations:
+              - projectsyn
+          issuerRef:
+            name: letsencrypt-production
+            kind: ClusterIssuer

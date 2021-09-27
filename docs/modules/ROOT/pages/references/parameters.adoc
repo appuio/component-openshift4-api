@@ -2,18 +2,106 @@
 
 The parent key for all of the following parameters is `openshift4_api`.
 
-== `namespace`
+== `servingCerts`
 
 [horizontal]
-type:: string
-default:: `syn-openshift4-api`
+type:: object
+default:: `{}`
 
-The namespace in which to deploy this component.
+`servingCerts` is the TLS cert info for serving secure traffic.
+This is a key-value map defining multiple named certificates.
+
+Each entry needs to specify which host name it matches and provide a certificate.
+The certificate can be provided in two ways:
+
+* `secret`: The provided entry is deployed onto the cluster as a Kubernetes Secret with `type=kubernetes.io/tls`.
+The dictionary values are directly merged into a `Secret` resource which only has `type=kubernetes.io/tls` set.
+* `cert`: A certificate is generated using `cert-manager`, by deploying the entry as a `Certificate` resource.
+The dictionary values are then directly merged into the mostly empty `Certificate` resources.
+
+If no certificate is specified or no name matches the server name, the operator managed certificates will be used for serving secure traffic.
+
+
+
+=== Example
+
+[source,yaml]
+----
+servingCerts:
+  "foo":
+    names:
+      - "foo.vshn.ch"
+    secret:
+      stringData:
+        tls.crt: "THECERTTIFICATE"
+        tls.key: "THEKEY"
+  "bar":
+    names:
+      - "bar.vshn.ch"
+      - "buzz.vshn.ch"
+    secret: null
+    cert:
+      subject:
+        organizations:
+          - projectsyn
+      issuerRef:
+        name: letsencrypt-production
+        kind: ClusterIssuer
+----
+
+
+
+== `apiServerSpec`
+
+[horizontal]
+type:: object
+default::
++
+[source,yaml]
+----
+audit:
+  profile: 'Default'
+----
+
+The https://docs.openshift.com/container-platform/4.8/rest_api/config_apis/apiserver-config-openshift-io-v1.html[APIServer config] specification.
+The dictionary values are directly merged into the `spec` of the `APIServer` resource.
+
+IMPORTANT: Configuring field `servingCerts` in this parameter won't have an effect, as that field is overwritten by the contents of parameter `servingCerts`.
 
 
 == Example
 
 [source,yaml]
 ----
-namespace: example-namespace
+additionalCORSAllowedOrigins: []
+apiServerSpec:
+  audit:
+    profile: 'Default'
+  clientCA:
+    name: internal-ca
+  encryption:
+    type: aescbc
+  tlsSecurityProfile:
+    old: {}
+    type: Old
+servingCerts:
+  "foo":
+    names:
+      - "foo.vshn.ch"
+    secret:
+      stringData:
+        tls.crt: "THECERTTIFICATE"
+        tls.key: "THEKEY"
+  "bar":
+    names:
+      - "bar.vshn.ch"
+      - "buzz.vshn.ch"
+    secret: null
+    cert:
+      subject:
+        organizations:
+          - projectsyn
+      issuerRef:
+        name: letsencrypt-production
+        kind: ClusterIssuer
 ----
