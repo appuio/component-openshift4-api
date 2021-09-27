@@ -50,6 +50,9 @@ local apiServer = {
       'include.release.openshift.io/single-node-developer': 'true',
       'oauth-apiserver.openshift.io/secure-token-storage': 'true',
       'release.openshift.io/create-only': 'true',
+      // Delay apply of the APIServer resource until secrets and certs are
+      // deployed and healthy
+      'argocd.argoproj.io/sync-wave': '10',
     },
   },
   spec: com.makeMergeable(params.apiServerSpec) + {
