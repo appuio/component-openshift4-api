@@ -8,10 +8,12 @@ The parent key for all of the following parameters is `openshift4_api`.
 type:: object
 default:: `{}`
 
-`servingCerts` is the TLS cert info for serving secure traffic.
+`servingCerts` provides TLS certificates for serving API traffic.
 This is a key-value map defining multiple named certificates.
+If the parameter has value `null` no serving certificates will be configured on the API server.
 
 Each entry needs to specify which host name it matches and provide a certificate.
+Entries can have value `null`, in which case they're skipped.
 The certificate can be provided in two ways:
 
 * `secret`: The provided entry is deployed onto the cluster as a Kubernetes Secret with `type=kubernetes.io/tls`.
@@ -104,4 +106,5 @@ servingCerts:
       issuerRef:
         name: letsencrypt-production
         kind: ClusterIssuer
+  "baz": null
 ----

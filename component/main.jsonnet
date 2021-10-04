@@ -10,8 +10,19 @@ local params = inv.parameters.openshift4_api;
 local apiServerName = 'cluster';
 local prefix = 'api-server-' + apiServerName + '-certificate-';
 
+local servingCerts =
+  if params.servingCerts == null then
+    {}
+  else
+    params.servingCerts;
+
+local nonNullServingCerts = std.prune([
+  if servingCerts[k] != null then k
+  for k in std.objectFields(servingCerts)
+]);
+
 local rawSecrets = [
-  if std.objectHas(params.servingCerts[k], 'cert') && params.servingCerts[k].cert != null then
+  if std.objectHas(servingCerts[k], 'cert') && servingCerts[k].cert != null then
     error 'Cannot use both static and cert-manager generated certificate for "%s"' % k
   else
     kube.Secret(prefix + k) {
@@ -19,13 +30,13 @@ local rawSecrets = [
       metadata+: {
         namespace: 'openshift-config',
       },
-    } + com.makeMergeable(params.servingCerts[k].secret)
-  for k in std.objectFields(params.servingCerts)
-  if std.objectHas(params.servingCerts[k], 'secret') && params.servingCerts[k].secret != null
+    } + com.makeMergeable(servingCerts[k].secret)
+  for k in nonNullServingCerts
+  if std.objectHas(servingCerts[k], 'secret') && servingCerts[k].secret != null
 ];
 
 local certs = [
-  if std.objectHas(params.servingCerts[k], 'secret') && params.servingCerts[k].secret != null then
+  if std.objectHas(servingCerts[k], 'secret') && servingCerts[k].secret != null then
     error 'Cannot use both static and cert-manager generated certificate for "%s"' % k
   else
     cm.cert(prefix + k) {
@@ -34,10 +45,10 @@ local certs = [
       },
       spec+: {
         secretName: prefix + k,
-      } + com.makeMergeable(params.servingCerts[k].cert),
+      } + com.makeMergeable(servingCerts[k].cert),
     }
-  for k in std.objectFields(params.servingCerts)
-  if std.objectHas(params.servingCerts[k], 'cert') && params.servingCerts[k].cert != null
+  for k in nonNullServingCerts
+  if std.objectHas(servingCerts[k], 'cert') && servingCerts[k].cert != null
 ];
 
 local apiServer = {
@@ -56,15 +67,15 @@ local apiServer = {
     },
   },
   spec: com.makeMergeable(params.apiServerSpec) + {
-    servingCerts: {
+    [if std.length(nonNullServingCerts) > 0 then 'servingCerts']: {
       namedCertificates: [
         {
-          names: params.servingCerts[k].names,
+          names: servingCerts[k].names,
           servingCertificate: {
             name: prefix + k,
           },
         }
-        for k in std.objectFields(params.servingCerts)
+        for k in nonNullServingCerts
       ],
     },
   },
@@ -73,7 +84,7 @@ local apiServer = {
 
 // Define outputs below
 {
-  '00_certs': certs,
-  '00_secrets': rawSecrets,
+  [if std.length(certs) > 0 then '00_certs']: certs,
+  [if std.length(rawSecrets) > 0 then '00_secrets']: rawSecrets,
   '10_apiserver': apiServer,
 }
