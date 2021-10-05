@@ -56,15 +56,18 @@ local apiServer = {
   kind: 'APIServer',
   metadata: {
     name: 'cluster',
-    annotations: {
-      'include.release.openshift.io/self-managed-high-availability': 'true',
-      'include.release.openshift.io/single-node-developer': 'true',
-      'oauth-apiserver.openshift.io/secure-token-storage': 'true',
-      'release.openshift.io/create-only': 'true',
-      // Delay apply of the APIServer resource until secrets and certs are
-      // deployed and healthy
-      'argocd.argoproj.io/sync-wave': '10',
-    },
+    annotations: std.prune(
+      {
+        'oauth-apiserver.openshift.io/secure-token-storage': 'true',
+        'release.openshift.io/create-only': 'true',
+      }
+      + com.makeMergeable(params.apiServerAnnotations)
+      + {
+        // Delay apply of the APIServer resource until secrets and certs are
+        // deployed and healthy
+        'argocd.argoproj.io/sync-wave': '10',
+      }
+    ),
   },
   spec: com.makeMergeable(params.apiServerSpec) + {
     [if std.length(nonNullServingCerts) > 0 then 'servingCerts']: {
