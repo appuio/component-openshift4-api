@@ -3,6 +3,7 @@ parameters:
     =_metadata: {}
     namespace: syn-openshift4-api
     servingCerts: {}
+    apiServerAnnotations: {}
     apiServerSpec:
       audit:
         profile: 'Default'

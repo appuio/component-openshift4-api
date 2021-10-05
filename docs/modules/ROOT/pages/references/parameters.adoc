@@ -109,6 +109,28 @@ servingCerts:
   "baz": null
 ----
 
+== `apiServerAnnotations`
+
+[horizontal]
+type:: object
+default:: `{}`
+
+Additional annotations to apply to the `APIServer` resource on the cluster.
+Users can remove annotations from the resource by setting the annotation value to `null`.
+The component applies the following annotations by default:
+
+[source,yaml]
+----
+oauth-apiserver.openshift.io/secure-token-storage: 'true',
+release.openshift.io/create-only: 'true',
+----
+
+[NOTE]
+====
+In addition to the annotations listed above, the annotation `argocd.argoproj.io/sync-wave='10'` is applied to the APIServer resource after the user-provided annotations are applied.
+This is done to ensure that the APIServer resource is configured after all certificate secrets are available in  the cluster.
+====
+
 == `apiServerSpec`
 
 [horizontal]
