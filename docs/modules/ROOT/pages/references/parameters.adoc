@@ -65,7 +65,7 @@ audit:
   profile: 'Default'
 ----
 
-The https://docs.openshift.com/container-platform/4.8/rest_api/config_apis/apiserver-config-openshift-io-v1.html[APIServer config] specification.
+The https://docs.openshift.com/container-platform/latest/rest_api/config_apis/apiserver-config-openshift-io-v1.html[APIServer config] specification.
 The dictionary values are directly merged into the `spec` of the `APIServer` resource.
 
 IMPORTANT: Configuring field `servingCerts` in this parameter won't have an effect, as that field is overwritten by the contents of parameter `servingCerts`.
