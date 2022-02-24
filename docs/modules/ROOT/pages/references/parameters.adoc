@@ -130,21 +130,3 @@ release.openshift.io/create-only: 'true',
 In addition to the annotations listed above, the annotation `argocd.argoproj.io/sync-wave='10'` is applied to the APIServer resource after the user-provided annotations are applied.
 This is done to ensure that the APIServer resource is configured after all certificate secrets are available in  the cluster.
 ====
-
-== `apiServerSpec`
-
-[horizontal]
-type:: object
-default::
-+
-[source,yaml]
-----
-audit:
-  profile: Default
-----
-
-This parameter allows users to configure the cluster's `APIServer` resource.
-The value of the parameter is used as value for field `spec` of the APIServer resource.
-The key `servingCerts.namedCertificates` is overwritten by the contents of parameter `servingCerts`.
-
-See the https://docs.openshift.com/container-platform/4.8/rest_api/config_apis/apiserver-config-openshift-io-v1.html[OpenShift API Reference docs] for all supported fields.
