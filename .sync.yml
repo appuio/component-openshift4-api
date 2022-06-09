@@ -2,7 +2,3 @@
   componentName: openshift4-api
   githubUrl: https://github.com/appuio/component-openshift4-api
   feature_goldenTests: true
-
-docs/antora.yml:
-  name: openshift4-api
-  title: openshift4-api
