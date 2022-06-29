@@ -7,3 +7,6 @@ parameters:
     apiServerSpec:
       audit:
         profile: 'Default'
+
+    monitoring:
+      enabled: true
