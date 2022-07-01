@@ -9,6 +9,12 @@ local params = inv.parameters.openshift4_api;
 
 local nsName = 'syn-monitoring-openshift4-api';
 
+local promInstance =
+  if params.monitoring.instance != '' then
+    params.monitoring.instance
+  else
+    inv.parameters.prometheus.defaultInstance;
+
 local apiServerMonitor = function(name, selector)
   prom.ServiceMonitor(name) {
     metadata+: {
@@ -76,12 +82,22 @@ local apiServerMonitor = function(name, selector)
     },
   };
 
-[
-  prom.RegisterNamespace(kube.Namespace(nsName)),
-  apiServerMonitor('openshift-apiserver', {
-    matchLabels: {
-      prometheus: 'openshift-apiserver',
-    },
-  }),
-  apiServerMonitor('openshift-oauth-apiserver', {}),
-]
+if params.monitoring.enabled && std.member(inv.applications, 'prometheus') then
+  [
+    prom.RegisterNamespace(
+      kube.Namespace(nsName),
+      instance=promInstance
+    ),
+    apiServerMonitor('openshift-apiserver', {
+      matchLabels: {
+        prometheus: 'openshift-apiserver',
+      },
+    }),
+    apiServerMonitor('openshift-oauth-apiserver', {}),
+  ]
+else
+  std.trace(
+    'Monitoring disabled or component `prometheus` not present, '
+    + 'not deploying ServiceMonitors',
+    []
+  )

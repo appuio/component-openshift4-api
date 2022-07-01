@@ -90,5 +90,5 @@ local apiServer = {
   [if std.length(certs) > 0 then '00_certs']: certs,
   [if std.length(rawSecrets) > 0 then '00_secrets']: rawSecrets,
   '10_apiserver': apiServer,
-  [if params.monitoring.enabled && std.member(inv.applications, 'prometheus') then '20_monitoring']: (import 'monitoring.libsonnet'),
+  '20_monitoring': (import 'monitoring.libsonnet'),
 }
