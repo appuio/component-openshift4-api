@@ -9,7 +9,7 @@ local params = inv.parameters.openshift4_api;
 
 local nsName = 'syn-monitoring-openshift4-api';
 
-local apiServerMonitor = function(name, selectorTargetLabel)
+local apiServerMonitor = function(name, selector)
   prom.ServiceMonitor(name) {
     metadata+: {
       namespace: nsName,
@@ -72,16 +72,16 @@ local apiServerMonitor = function(name, selectorTargetLabel)
           name,
         ],
       },
-      selector: {
-        matchLabels: {
-          [selectorTargetLabel]: name,
-        },
-      },
+      selector: selector,
     },
   };
 
 [
   prom.RegisterNamespace(kube.Namespace(nsName)),
-  apiServerMonitor('openshift-apiserver', 'prometheus'),
-  apiServerMonitor('openshift-oauth-apiserver', 'app'),
+  apiServerMonitor('openshift-apiserver', {
+    matchLabels: {
+      prometheus: 'openshift-apiserver',
+    },
+  }),
+  apiServerMonitor('openshift-oauth-apiserver', {}),
 ]

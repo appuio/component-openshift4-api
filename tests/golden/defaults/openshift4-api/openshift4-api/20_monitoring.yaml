@@ -99,6 +99,4 @@ spec:
   namespaceSelector:
     matchNames:
       - openshift-oauth-apiserver
-  selector:
-    matchLabels:
-      app: openshift-oauth-apiserver
+  selector: {}
