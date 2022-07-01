@@ -4,17 +4,17 @@ metadata:
   annotations: {}
   labels:
     monitoring.syn.tools/infra: 'true'
-    name: syn-openshift4-api-monitoring
-  name: syn-openshift4-api-monitoring
+    name: syn-monitoring-openshift4-api
+  name: syn-monitoring-openshift4-api
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   annotations: {}
   labels:
-    name: api-server
-  name: api-server
-  namespace: syn-openshift4-api-monitoring
+    name: openshift-apiserver
+  name: openshift-apiserver
+  namespace: syn-monitoring-openshift4-api
 spec:
   endpoints:
     - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -54,3 +54,51 @@ spec:
   selector:
     matchLabels:
       prometheus: openshift-apiserver
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  annotations: {}
+  labels:
+    name: openshift-oauth-apiserver
+  name: openshift-oauth-apiserver
+  namespace: syn-monitoring-openshift4-api
+spec:
+  endpoints:
+    - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      interval: 30s
+      metricRelabelings:
+        - action: drop
+          regex: etcd_(debugging|disk|server).*
+          sourceLabels:
+            - __name__
+        - action: drop
+          regex: apiserver_admission_controller_admission_latencies_seconds_.*
+          sourceLabels:
+            - __name__
+        - action: drop
+          regex: apiserver_admission_step_admission_latencies_seconds_.*
+          sourceLabels:
+            - __name__
+        - action: drop
+          regex: apiserver_request_duration_seconds_bucket;(0.15|0.25|0.3|0.35|0.4|0.45|0.6|0.7|0.8|0.9|1.25|1.5|1.75|2.5|3|3.5|4.5|6|7|8|9|15|25|30|50)
+          sourceLabels:
+            - __name__
+            - le
+      port: https
+      relabelings:
+        - action: replace
+          replacement: openshift-oauth-apiserver
+          targetLabel: apiserver
+      scheme: https
+      tlsConfig:
+        caFile: /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+        certFile: /etc/prometheus/secrets/ocp-metric-client-certs-monitoring/tls.crt
+        keyFile: /etc/prometheus/secrets/ocp-metric-client-certs-monitoring/tls.key
+        serverName: api.openshift-oauth-apiserver.svc
+  namespaceSelector:
+    matchNames:
+      - openshift-oauth-apiserver
+  selector:
+    matchLabels:
+      app: openshift-oauth-apiserver

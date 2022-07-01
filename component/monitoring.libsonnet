@@ -7,11 +7,10 @@ local inv = kap.inventory();
 // The hiera parameters for the component
 local params = inv.parameters.openshift4_api;
 
-local nsName = params.namespace + '-monitoring';
+local nsName = 'syn-monitoring-openshift4-api';
 
-[
-  prom.RegisterNamespace(kube.Namespace(nsName)),
-  prom.ServiceMonitor('api-server') {
+local apiServerMonitor = function(name, selectorTargetLabel)
+  prom.ServiceMonitor(name) {
     metadata+: {
       namespace: nsName,
     },
@@ -55,7 +54,7 @@ local nsName = params.namespace + '-monitoring';
           relabelings: [
             {
               action: 'replace',
-              replacement: 'openshift-apiserver',
+              replacement: name,
               targetLabel: 'apiserver',
             },
           ],
@@ -64,20 +63,25 @@ local nsName = params.namespace + '-monitoring';
             caFile: '/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt',
             certFile: '/etc/prometheus/secrets/ocp-metric-client-certs-monitoring/tls.crt',
             keyFile: '/etc/prometheus/secrets/ocp-metric-client-certs-monitoring/tls.key',
-            serverName: 'api.openshift-apiserver.svc',
+            serverName: 'api.%s.svc' % name,
           },
         },
       ],
       namespaceSelector: {
         matchNames: [
-          'openshift-apiserver',
+          name,
         ],
       },
       selector: {
         matchLabels: {
-          prometheus: 'openshift-apiserver',
+          [selectorTargetLabel]: name,
         },
       },
     },
-  },
+  };
+
+[
+  prom.RegisterNamespace(kube.Namespace(nsName)),
+  apiServerMonitor('openshift-apiserver', 'prometheus'),
+  apiServerMonitor('openshift-oauth-apiserver', 'app'),
 ]
