@@ -1,9 +1,16 @@
+applications:
+  - prometheus
+
 parameters:
   kapitan:
     dependencies:
       - type: https
         source: https://raw.githubusercontent.com/projectsyn/component-cert-manager/v2.1.0/lib/cert-manager.libsonnet
         output_path: vendor/lib/cert-manager.libsonnet
+      - type: https
+        source: https://raw.githubusercontent.com/projectsyn/component-prometheus/master/lib/prometheus.libsonnet
+        output_path: vendor/lib/prometheus.libsonnet
+
   openshift4_api:
     servingCerts:
       "foo":
@@ -26,3 +33,6 @@ parameters:
             name: letsencrypt-production
             kind: ClusterIssuer
       "baz": null
+
+  prometheus:
+    defaultInstance: infra
