@@ -10,7 +10,7 @@ local params = inv.parameters.openshift4_api;
 local nsName = 'syn-monitoring-openshift4-api';
 
 local promInstance =
-  if params.monitoring.instance != '' then
+  if params.monitoring.instance != null then
     params.monitoring.instance
   else
     inv.parameters.prometheus.defaultInstance;

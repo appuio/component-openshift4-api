@@ -10,4 +10,4 @@ parameters:
 
     monitoring:
       enabled: true
-      instance: ''
+      instance: null

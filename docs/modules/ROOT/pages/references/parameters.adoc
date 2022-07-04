@@ -150,7 +150,7 @@ If the component is missing, no configurations will be deployed regardless of th
 
 [horizontal]
 type:: string
-default:: `''`
+default:: `null`
 
 This parameter can be used to indicate which custom Prometheus instance should pick up the configurations managed by the component.
 
