@@ -1,4 +1,0 @@
-:global:
-  componentName: openshift4-api
-  githubUrl: https://github.com/appuio/component-openshift4-api
-  feature_goldenTests: true
