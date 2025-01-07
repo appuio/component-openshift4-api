@@ -1,6 +1,7 @@
 parameters:
   openshift4_api:
-    =_metadata: {}
+    =_metadata:
+      multi_tenant: true
     namespace: syn-openshift4-api
     servingCerts: {}
     apiServerAnnotations: {}
